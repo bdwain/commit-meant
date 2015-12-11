@@ -14,7 +14,7 @@ const NO_COMMIT_MEANT = 'No commit-meant found.',
     messageRe = /^(MAJOR|MINOR|PATCH) - (.+)\n\n(.+)\n\n((?:[^\*+-].+(?:\n\n)*)*)((?:[\*]\s.+\n*)*)/g,
     noteRe = /[\*+-]\s/g;
 
-function message2obj(msg) {
+function message2cm(msg) {
     let json = msg
         .replace(messageRe, '{ "changeType": "$1", "title": "$2", "issue": "$3", "description": "$4", "notes": "$5" }')
         .replace(/\n/g, ''),
@@ -37,11 +37,24 @@ program
     .option('-a, --all', 'check all commits on the branch for a commit-meant')
     .option('-l, --log <n>', 'output commit-meant history for last n commits on the branch')
 
+    .option('-f, --field <name>', 'output the value of the commit-meant field with the specified name')
+
     .parse(process.argv);
 
 let pwd = path.resolve('.'),
     repo,
     masterCommit;
+
+
+function output(cm) {
+    if (!cm) {
+        console.log(NO_COMMIT_MEANT);
+    } else if (program.field) {
+        console.log(cm[program.field]);
+    } else {
+        console.log(cm);
+    }
+}
 
 Git
     .Repository
@@ -56,8 +69,8 @@ Git
             });
     })
     .then(headCommit => {
-        if (program.head) {
-            console.log(message2obj(headCommit.message()) || NO_COMMIT_MEANT);
+        if (program.zed) {
+            output(message2cm(headCommit.message()));
         } else if (_.has(program, 'log')) {
             let history = headCommit.history(),
                 c = program.log,
@@ -66,7 +79,7 @@ Git
             history
                 .on('commit', commit => {
                     if (--c >= 0) {
-                        let obj = message2obj(commit.message());
+                        let obj = message2cm(commit.message());
 
                         if (obj) {
                             log.push(obj);
@@ -76,13 +89,16 @@ Git
 
             history
                 .on('end', () => {
-                    console.log(log);
+                    log.forEach(cm => {
+                        output(cm);
+                        console.log('\n\n');
+                    });
                 });
 
             history.start();
         } else {
             let history = headCommit.history(),
-                obj,
+                cm,
                 stop = false;
 
             history
@@ -90,19 +106,15 @@ Git
                     if (!stop) {
                         stop = !program.all && Git.Graph.descendantOf(repo, masterCommit, commit);
 
-                        if (!obj && !stop) {
-                            obj = message2obj(commit.message());
+                        if (!cm && !stop) {
+                            cm = message2cm(commit.message());
                         }
                     }
                 });
 
             history
                 .on('end', () => {
-                    if (obj) {
-                        console.log(obj);
-                    } else {
-                        console.log(NO_COMMIT_MEANT);
-                    }
+                    output(cm);
                 });
 
             history.start();
