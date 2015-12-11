@@ -32,10 +32,10 @@ function message2obj(msg) {
 
 program
     .version('0.1.0')
-    .usage('[options]')
-    .option('-h, --head', 'only check the HEAD commit')
-    .option('-a, --all', 'check all ancestor commits')
-    .option('-l, --log <n>', 'output commit-meants for last n commits')
+    .usage('[options] [branchName]')
+    .option('-t, --tip', 'only check the tip of the branch for a commit-meant')
+    .option('-a, --all', 'check all commits on the branch for a commit-meant')
+    .option('-l, --log <n>', 'output commit-meant history for last n commits on the branch')
 
     .parse(process.argv);
 
