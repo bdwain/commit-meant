@@ -1,0 +1,12 @@
+{
+  "disallowQuotedKeysInObjects": true,
+  "requireCamelCaseOrUpperCaseIdentifiers": true,
+  "validateQuoteMarks": "'",
+  "disallowMultipleSpaces": true,
+  "requireSemicolons": true,
+  "requireSpaceBeforeObjectValues": true,
+  "esnext": true,
+  "disallowKeywords": [
+    "var"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "commit-meant",
+  "version": "0.1.0",
+  "preferGlobal": true,
+  "bin": {
+    "commit-meant": "index.js"
+  },
+  "description": "A command line utility for working with commit messages in npm scripts.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acaides/commit-meant.git"
+  },
+  "keywords": [
+    "git",
+    "commit",
+    "message",
+    "npm",
+    "command",
+    "line",
+    "cli"
+  ],
+  "author": "Isaiah Simpson <isaiah.simpson@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/acaides/commit-meant/issues"
+  },
+  "homepage": "https://github.com/acaides/commit-meant#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "lodash": "^3.10.1",
+    "nodegit": "^0.6.0"
+  },
+  "engines": {
+    "node": ">=5.0.0"
+  }
+}
