@@ -46,13 +46,17 @@ let pwd = path.resolve('.'),
     masterCommit;
 
 
-function output(cm) {
+function output(cm, dontExit) {
     if (!cm) {
         console.log(NO_COMMIT_MEANT);
     } else if (program.field) {
         console.log(cm[program.field]);
     } else {
         console.log(cm);
+    }
+
+    if (!dontExit) {
+        process.exit(cm ? 0 : 1);
     }
 }
 
@@ -90,7 +94,7 @@ Git
             history
                 .on('end', () => {
                     log.forEach(cm => {
-                        output(cm);
+                        output(cm, true);
                         console.log('\n\n');
                     });
                 });
