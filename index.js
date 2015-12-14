@@ -33,19 +33,25 @@ function message2cm(msg) {
 program
     .version('0.1.0')
     .usage('[options] [branchName]')
-    .option('-d, --destination', 'the destination branch for merges, "origin/master" by default')
+    .option('-d, --destination <destination>', 'the destination branch for merges, "origin/master" by default')
+    .option('-s, --silent', 'skips outputting to the console')
     .option('-t, --tip', 'only check the tip of the branch for a commit-meant')
     .option('-f, --field <name>', 'output the value of the commit-meant field with the specified name')
+    .option('-l, --log', 'if a commit-meant is not found, output a message with debug information')
     .parse(process.argv);
 
 function output(cm, dontExit) {
-    if (!cm) {
-        console.log(log);
-        console.log(NO_COMMIT_MEANT);
-    } else if (program.field) {
-        console.log(cm[program.field]);
-    } else {
-        console.log(cm);
+    if(!program.silent) {
+        if (!cm) {
+            if(program.log) {
+                console.log(log);
+            }
+            console.log(NO_COMMIT_MEANT);
+        } else if (program.field) {
+            console.log(cm[program.field]);
+        } else {
+            console.log(cm);
+        }
     }
 
     if (!dontExit) {
