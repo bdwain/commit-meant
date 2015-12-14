@@ -51,7 +51,9 @@ function output(cm, dontExit) {
     }
 }
 
-exec(`git log master..HEAD  --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
+let branch = program.args.length === 0 ? 'HEAD' : program.args[0];
+
+exec(`git log master..${branch}  --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
     let cms = _.map(_.drop(stdout.split(LOG_SEPARATOR)), message2cm);
 
     if (program.tip) {
