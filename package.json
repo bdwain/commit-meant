@@ -31,8 +31,7 @@
   "homepage": "https://github.com/acaides/commit-meant#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "lodash": "^3.10.1",
-    "nodegit": "^0.6.0"
+    "lodash": "^3.10.1"
   },
   "engines": {
     "node": ">=5.0.0"
