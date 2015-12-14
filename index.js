@@ -59,10 +59,10 @@ let destination = program.destination || 'origin/master',
 log.logCommand = `git log ${destination}..${branch}`;
 
 exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
-    log.logOutput = stdout;
+    let logOutput = stdout.toString(),
+        cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), message2cm);
 
-    let cms = _.map(_.drop(stdout.split(LOG_SEPARATOR)), message2cm);
-
+    log.logOutput = logOutput;
     log.cms = cms;
 
     if (program.tip) {
