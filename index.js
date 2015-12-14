@@ -58,7 +58,7 @@ let destination = program.destination || 'origin/master',
 
 log.logCommand = `git log ${destination}..${branch}`;
 
-exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
+exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%s%n%n%b\'`, (error, stdout) => {
     let logOutput = stdout.toString(),
         cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), message2cm);
 
