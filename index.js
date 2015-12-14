@@ -53,7 +53,7 @@ function output(cm, dontExit) {
 
 let branch = program.args.length === 0 ? 'HEAD' : program.args[0];
 
-exec(`git log ^master ${branch}  --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
+exec(`git log master..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
     let cms = _.map(_.drop(stdout.split(LOG_SEPARATOR)), message2cm);
 
     if (program.tip) {
