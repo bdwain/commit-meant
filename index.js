@@ -33,6 +33,7 @@ function message2cm(msg) {
 program
     .version('0.1.0')
     .usage('[options] [branchName]')
+    .option('-d, --destination', 'the destination branch for merges, "origin/master" by default')
     .option('-t, --tip', 'only check the tip of the branch for a commit-meant')
     .option('-f, --field <name>', 'output the value of the commit-meant field with the specified name')
     .parse(process.argv);
@@ -51,9 +52,10 @@ function output(cm, dontExit) {
     }
 }
 
-let branch = program.args.length === 0 ? 'HEAD' : program.args[0];
+let destination = program.destination || 'origin/master',
+    branch = program.args.length === 0 ? 'HEAD' : program.args[0];
 
-exec(`git log master..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
+exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
     let cms = _.map(_.drop(stdout.split(LOG_SEPARATOR)), message2cm);
 
     if (program.tip) {
