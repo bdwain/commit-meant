@@ -32,18 +32,18 @@ function message2cm(msg) {
 
 program
     .version('0.1.0')
-    .usage('[options] [branchName]')
+    .usage('[options] [source]')
+    .description('Reads GIT history and determines the meaning of merging the specified source commit, or HEAD by default, into the destination branch (origin/master by default).')
     .option('-d, --destination <destination>', 'the destination branch for merges, "origin/master" by default')
     .option('-s, --silent', 'skips outputting to the console')
-    .option('-t, --tip', 'only check the tip of the branch for a commit-meant')
-    .option('-f, --field <name>', 'output the value of the commit-meant field with the specified name')
+    .option('-f, --field <name>', 'output only the value of the commit-meant field with the specified name')
     .option('-l, --log', 'if a commit-meant is not found, output a message with debug information')
     .parse(process.argv);
 
 function output(cm, dontExit) {
-    if(!program.silent) {
+    if (!program.silent) {
         if (!cm) {
-            if(program.log) {
+            if (program.log) {
                 console.log(log);
             }
             console.log(NO_COMMIT_MEANT);
@@ -60,20 +60,36 @@ function output(cm, dontExit) {
 }
 
 let destination = program.destination || 'origin/master',
-    branch = program.args.length === 0 ? 'HEAD' : program.args[0];
+    source = program.args.length === 0 ? 'HEAD' : program.args[0],
+    logCommand = `git log ${destination}..${source} --no-merges --pretty=format:'${LOG_SEPARATOR}%s%n%n%b'`;
 
-log.logCommand = `git log ${destination}..${branch}`;
+log.logCommand = logCommand;
 
-exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%s%n%n%b\'`, (error, stdout) => {
-    let logOutput = stdout.toString(),
-        cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), message2cm);
+exec(logCommand, (error, stdout, stderr) => {
+    if(error || stderr.toString().length > 0) {
+        output(null);
+        return;
+    }
 
-    log.logOutput = logOutput;
-    log.cms = cms;
+    if(stdout.length === 0) {
+        // SOURCE === DESTINATION case: look at the destination tip for cm
+        let tipLogCommand = `git log ${destination} -1 --no-merges --pretty=format:'%s%n%n%b'`;
 
-    if (program.tip) {
-        output(cms.length === 0 ? null : cms[0]);
+        log.tipLogCommand = tipLogCommand;
+
+        exec(tipLogCommand, (error, stdout) => {
+            let tipLogOutput = stdout.toString(),
+                cm = message2cm(tipLogOutput);
+
+            output(cm);
+        });
     } else {
+        let logOutput = stdout.toString(),
+            cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), message2cm);
+
+        log.logOutput = logOutput;
+        log.cms = cms;
+
         output(_.find(cms, cm => cm));
     }
 });
