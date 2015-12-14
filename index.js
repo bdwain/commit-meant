@@ -4,7 +4,7 @@
 
 'use strict';
 
-const
+const log = {},
     _ = require('lodash'),
     exec = require('child_process').exec,
     program = require('commander'),
@@ -40,6 +40,7 @@ program
 
 function output(cm, dontExit) {
     if (!cm) {
+        console.log(log);
         console.log(NO_COMMIT_MEANT);
     } else if (program.field) {
         console.log(cm[program.field]);
@@ -55,8 +56,14 @@ function output(cm, dontExit) {
 let destination = program.destination || 'origin/master',
     branch = program.args.length === 0 ? 'HEAD' : program.args[0];
 
+log.logCommand = `git log ${destination}..${branch}`;
+
 exec(`git log ${destination}..${branch} --pretty=format:\'${LOG_SEPARATOR}%B\'`, (error, stdout) => {
+    log.logOutput = stdout;
+
     let cms = _.map(_.drop(stdout.split(LOG_SEPARATOR)), message2cm);
+
+    log.cms = cms;
 
     if (program.tip) {
         output(cms.length === 0 ? null : cms[0]);
