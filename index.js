@@ -15,6 +15,7 @@ const log = {},
 
 function message2cm(msg) {
     let json = msg
+        .replace(/"/gi, '\\"')
         .replace(messageRe, '{ "changeType": "$1", "title": "$2", "issue": "$3", "description": "$4", "notes": "$5" }')
         .replace(/\n/g, ''),
         cm;
@@ -66,18 +67,23 @@ let destination = program.destination || 'origin/master',
 log.logCommand = logCommand;
 
 exec(logCommand, (error, stdout, stderr) => {
-    if(error || stderr.toString().length > 0) {
+    if (error || stderr.toString().length > 0) {
         output(null);
         return;
     }
 
-    if(stdout.length === 0) {
+    if (stdout.length === 0) {
         // SOURCE === DESTINATION case: look at the destination tip for cm
         let tipLogCommand = `git log ${destination} -1 --no-merges --pretty=format:'%s%n%n%b'`;
 
         log.tipLogCommand = tipLogCommand;
 
         exec(tipLogCommand, (error, stdout) => {
+            if (error || stderr.toString().length > 0) {
+                output(null);
+                return;
+            }
+
             let tipLogOutput = stdout.toString(),
                 cm = message2cm(tipLogOutput);
 
