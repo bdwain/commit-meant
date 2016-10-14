@@ -9,7 +9,7 @@ const log = {},
     exec = require('child_process').exec,
     program = require('commander'),
     NO_COMMIT_MEANT = 'No commit-meant found.',
-    messageRe = /^(MAJOR|MINOR|PATCH).*/g,
+    messageRe = /^(MAJOR|MINOR|PATCH)/,
     noteRe = /[\*+-]\s/g,
     LOG_SEPARATOR = 'GJVX47gWz4@7m&*uYX%5qe24';
 
