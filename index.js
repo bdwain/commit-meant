@@ -13,22 +13,11 @@ const log = {},
     noteRe = /[\*+-]\s/g,
     LOG_SEPARATOR = 'GJVX47gWz4@7m&*uYX%5qe24';
 
-function message2cm(msg) {
-    let json = msg
-        .replace(/"/gi, '\\"')
-        .replace(messageRe, '{ "changeType": "$1", "title": "$2", "issue": "$3", "description": "$4", "notes": "$5" }')
-        .replace(/\n/g, ''),
-        cm;
-
-    try {
-        cm = JSON.parse(json);
-        cm.changeType = cm.changeType.toLowerCase();
-        cm.notes = _.filter(_.map(cm.notes.trim().split(noteRe), note => note.trim()), note => note);
-
-        return cm;
-    } catch (e) {
-        return null;
+function getChangeType(msg) {
+    if(!messageRe.test(msg)){
+      return null;
     }
+    return msg.substr(0, 5).toLowerCase();
 }
 
 program
@@ -37,7 +26,6 @@ program
     .description('Reads GIT history and determines the meaning of merging the specified source commit, or HEAD by default, into the destination branch (origin/master by default).')
     .option('-d, --destination <destination>', 'the destination branch for merges, "origin/master" by default')
     .option('-s, --silent', 'skips outputting to the console')
-    .option('-f, --field <name>', 'output only the value of the commit-meant field with the specified name')
     .option('-l, --log', 'if a commit-meant is not found, output a message with debug information')
     .parse(process.argv);
 
@@ -48,9 +36,8 @@ function output(cm, dontExit) {
                 console.log(log);
             }
             console.log(NO_COMMIT_MEANT);
-        } else if (program.field) {
-            console.log(cm[program.field]);
-        } else {
+        }
+        else {
             console.log(cm);
         }
     }
@@ -85,13 +72,13 @@ exec(logCommand, (error, stdout, stderr) => {
             }
 
             let tipLogOutput = stdout.toString(),
-                cm = message2cm(tipLogOutput);
+                cm = getChangeType(tipLogOutput);
 
             output(cm);
         });
     } else {
         let logOutput = stdout.toString(),
-            cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), message2cm);
+            cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), getChangeType);
 
         log.logOutput = logOutput;
         log.cms = cms;
