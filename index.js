@@ -9,9 +9,7 @@ const log = {},
     exec = require('child_process').exec,
     program = require('commander'),
     NO_COMMIT_MEANT = 'No commit-meant found.',
-    messageRe = /^(MAJOR|MINOR|PATCH)/,
-    noteRe = /[\*+-]\s/g,
-    LOG_SEPARATOR = 'GJVX47gWz4@7m&*uYX%5qe24';
+    messageRe = /^(MAJOR|MINOR|PATCH)/;
 
 function getChangeType(msg) {
     if(!messageRe.test(msg)){
@@ -49,7 +47,7 @@ function output(cm, dontExit) {
 
 let destination = program.destination || 'origin/master',
     source = program.args.length === 0 ? 'HEAD' : program.args[0],
-    logCommand = `git log ${destination}..${source} --no-merges --pretty=format:'${LOG_SEPARATOR}%s%n%n%b'`;
+    logCommand = `git log ${destination}..${source} --no-merges --pretty=format:'%s'`;
 
 log.logCommand = logCommand;
 
@@ -61,7 +59,7 @@ exec(logCommand, (error, stdout, stderr) => {
 
     if (stdout.length === 0) {
         // SOURCE === DESTINATION case: look at the destination tip for cm
-        let tipLogCommand = `git log ${destination} -1 --no-merges --pretty=format:'%s%n%n%b'`;
+        let tipLogCommand = `git log ${destination} -1 --no-merges --pretty=format:'%s'`;
 
         log.tipLogCommand = tipLogCommand;
 
@@ -78,7 +76,7 @@ exec(logCommand, (error, stdout, stderr) => {
         });
     } else {
         let logOutput = stdout.toString(),
-            cms = _.map(_.drop(logOutput.split(LOG_SEPARATOR)), getChangeType);
+            cms = logOutput.split('\n').map(log => getChangeType(log));
 
         log.logOutput = logOutput;
         log.cms = cms;
